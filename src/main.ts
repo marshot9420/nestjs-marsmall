@@ -1,5 +1,12 @@
-import { INestApplication, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { SwaggerModule } from '@nestjs/swagger';
+
+import * as expressBasicAuth from 'express-basic-auth';
+
+import { swaggerConfig } from '@/configs';
+import { API_URL } from '@/constants';
 
 import { AppModule } from './app.module';
 
@@ -8,14 +15,33 @@ class Application {
   private HOST: string;
   private PORT: string;
 
-  constructor(private app: INestApplication) {
+  constructor(private app: NestExpressApplication) {
     this.app = app;
     this.HOST = process.env.HOST;
     this.PORT = process.env.PORT;
   }
 
+  private async setUpOpenAPI() {
+    this.app.use(
+      [API_URL.SWAGGER.DOS, API_URL.SWAGGER.DOCS_JSON],
+      expressBasicAuth({
+        challenge: true,
+        users: {
+          [process.env.ADMIN_USER]: process.env.ADMIN_PASSWORD,
+        },
+      }),
+    );
+
+    const document = SwaggerModule.createDocument(this.app, swaggerConfig);
+    SwaggerModule.setup(API_URL.SWAGGER.DOS, this.app, document);
+  }
+
+  private async setUpGlobalMiddleware() {
+    this.setUpOpenAPI();
+  }
+
   async bootstrap() {
-    this.app = await NestFactory.create(AppModule);
+    await this.setUpGlobalMiddleware();
     await this.app.listen(this.PORT);
   }
 
@@ -25,7 +51,7 @@ class Application {
 }
 
 async function init() {
-  const server = await NestFactory.create(AppModule, {
+  const server = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
 
