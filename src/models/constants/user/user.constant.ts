@@ -1,3 +1,7 @@
+export const AUTH = {
+  SALT: 10,
+};
+
 export const USER = {
   EMAIL: {
     KR: '이메일',
@@ -19,7 +23,7 @@ export const USER = {
     KR: '이름',
     MIN_LENGTH: 2,
     MAX_LENGTH: 17,
-    REG_EXP: /^[a-zA-Z기-힣]+$/,
+    REG_EXP: /^[a-zA-Z가-힣]+$/,
   },
 
   PHONE: {
