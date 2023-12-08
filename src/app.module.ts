@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { dbConfig } from '@/configs';
 import { CONFIG } from '@/constants';
+import { modules } from '@/modules';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CONFIG } from '@/constants';
         configService.get(CONFIG.DB),
       inject: [ConfigService],
     }),
+    ...modules,
   ],
   controllers: [],
   providers: [Logger],

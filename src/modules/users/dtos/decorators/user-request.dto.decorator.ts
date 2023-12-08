@@ -14,7 +14,7 @@ export const UserRequestDto = {
   },
 
   password() {
-    return applyDecorators(UserDoc.name(), UserValidation.password());
+    return applyDecorators(UserDoc.password(), UserValidation.password());
   },
 
   name() {
