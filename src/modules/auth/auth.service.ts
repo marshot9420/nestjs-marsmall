@@ -70,4 +70,29 @@ export class AuthService {
         .accessTokenExpiresIn,
     });
   }
+
+  async generateRefreshToken({ id }: IJwtPayload): Promise<string> {
+    const payload: IJwtPayload = { id };
+
+    try {
+      const refreshToken = this.jwtService.sign(payload, {
+        secret: this.configService.get<AuthConfigType>(CONFIG.AUTH)
+          .accessTokenSecret,
+        expiresIn: this.configService.get<AuthConfigType>(CONFIG.AUTH)
+          .accessTokenExpiresIn,
+      });
+
+      const hashedRefreshToken = await bcrypt.hash(refreshToken, AUTH.SALT);
+
+      const result = await this.userRepository.update(id, {
+        refreshToken: hashedRefreshToken,
+      });
+
+      throwExceptionOrNot(result.affected, EXCEPTION.AUTH.REFRESH_FAILURE);
+
+      return refreshToken;
+    } catch (error) {
+      handleException(EXCEPTION.AUTH.JWT_ERROR);
+    }
+  }
 }

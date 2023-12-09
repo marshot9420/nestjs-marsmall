@@ -30,5 +30,13 @@ export const EXCEPTION = {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       message: '잘못된 인증 정보입니다.',
     },
+    JWT_ERROR: {
+      status: HttpStatus.BAD_REQUEST,
+      message: '토큰 발급 중 오류가 발생했습니다.',
+    },
+    REFRESH_FAILURE: {
+      status: HttpStatus.BAD_REQUEST,
+      message: 'Refresh 토큰 갱신에 실패했습니다.',
+    },
   },
 };
