@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 import * as bcrypt from 'bcrypt';
 
 import { handleException, throwExceptionOrNot } from '@/common';
+import { AuthConfigType } from '@/configs';
+import { CONFIG } from '@/constants';
 import { EXCEPTION } from '@/docs';
 import { AUTH, User, UserRepository, UserRole } from '@/models';
 
@@ -11,7 +15,11 @@ import { IJwtPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userRepository: UserRepository,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async join(joinForm: JoinForm): Promise<void> {
     const { email, password, name, phone } = joinForm;
@@ -50,5 +58,16 @@ export class AuthService {
     throwExceptionOrNot(isPasswordValid, EXCEPTION.AUTH.BAD_AUTH_REQUEST);
 
     return user;
+  }
+
+  generateAccessToken({ id }: IJwtPayload) {
+    const payload: IJwtPayload = { id };
+
+    return this.jwtService.sign(payload, {
+      secret: this.configService.get<AuthConfigType>(CONFIG.AUTH)
+        .accessTokenSecret,
+      expiresIn: this.configService.get<AuthConfigType>(CONFIG.AUTH)
+        .accessTokenExpiresIn,
+    });
   }
 }
