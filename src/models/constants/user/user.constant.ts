@@ -2,6 +2,10 @@ export const AUTH = {
   SALT: 10,
 };
 
+export const STRATEGY = {
+  LOCAL: 'LOCAL',
+};
+
 export const USER = {
   EMAIL: {
     KR: '이메일',

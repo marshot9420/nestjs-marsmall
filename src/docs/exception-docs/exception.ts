@@ -26,5 +26,9 @@ export const EXCEPTION = {
       status: HttpStatus.BAD_REQUEST,
       message: '회원가입 중 알 수 없는 오류가 발생했습니다.',
     },
+    BAD_AUTH_REQUEST: {
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      message: '잘못된 인증 정보입니다.',
+    },
   },
 };

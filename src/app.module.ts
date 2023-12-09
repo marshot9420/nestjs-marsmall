@@ -2,7 +2,7 @@ import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { dbConfig } from '@/configs';
+import { configs } from '@/configs';
 import { CONFIG } from '@/constants';
 import { modules } from '@/modules';
 
@@ -13,7 +13,7 @@ import { modules } from '@/modules';
       envFilePath: `.env.${
         process.env.NODE_ENV || CONFIG.NODE_ENV.DEVELOPMENT
       }`,
-      load: [dbConfig],
+      load: configs,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

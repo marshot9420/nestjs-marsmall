@@ -7,6 +7,7 @@ import { EXCEPTION } from '@/docs';
 import { AUTH, User, UserRepository, UserRole } from '@/models';
 
 import { JoinForm } from './dtos';
+import { IJwtPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -35,5 +36,19 @@ export class AuthService {
     } catch (error) {
       handleException(EXCEPTION.AUTH.JOIN_ERROR);
     }
+  }
+
+  async validateLocalUser(email: string, password: string): Promise<User> {
+    const user = await this.userRepository.findWithPassword(email);
+    console.log(user);
+
+    throwExceptionOrNot(user, EXCEPTION.AUTH.BAD_AUTH_REQUEST);
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    delete user.password;
+
+    throwExceptionOrNot(isPasswordValid, EXCEPTION.AUTH.BAD_AUTH_REQUEST);
+
+    return user;
   }
 }
