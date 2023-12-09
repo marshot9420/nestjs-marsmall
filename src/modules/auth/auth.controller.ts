@@ -30,6 +30,7 @@ export class AuthController {
     await this.authService.join(joinForm);
   }
 
+  @Docs.login('로그인')
   @Post('login')
   @UseGuards(LocalAuthGuard)
   async login(
