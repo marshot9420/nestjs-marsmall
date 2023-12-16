@@ -1,9 +1,22 @@
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+
+import { Response } from 'express';
+
+import { User } from '@/models';
 
 import { JoinForm } from '../dtos';
 
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
+import { CONFIG } from '@/constants';
+
+jest.mock('@/docs/controller-docs/auth.controller.doc.ts', () => ({
+  AuthControllerDoc: {
+    join: jest.fn(() => () => {}),
+    login: jest.fn(() => () => {}),
+  },
+}));
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -12,6 +25,18 @@ describe('AuthController', () => {
   beforeEach(async () => {
     const mockAuthService = {
       join: jest.fn(),
+      generateAccessToken: jest.fn().mockReturnValue('mockAccessToken'),
+      generateRefreshToken: jest.fn().mockReturnValue('mockRefreshToken'),
+    };
+
+    const mockConfigService = {
+      get: jest.fn().mockImplementation((key) => {
+        if (key === CONFIG.AUTH) {
+          return {
+            refreshTokenExpiresIn: 1209600,
+          };
+        }
+      }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -20,6 +45,10 @@ describe('AuthController', () => {
         {
           provide: AuthService,
           useValue: mockAuthService,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
         },
       ],
     }).compile();
@@ -46,6 +75,28 @@ describe('AuthController', () => {
       await controller.join(joinForm);
 
       expect(authService.join).toHaveBeenCalledWith(joinForm);
+    });
+  });
+
+  describe('login', () => {
+    it('로그인 시 액세스 토큰과 리프레시 토큰이 발급되어야 합니다.', async () => {
+      const user = { id: 1, email: 'test@example.com' };
+
+      const mockResponse = { cookie: jest.fn() } as Partial<Response>;
+
+      const loginResponse = await controller.login(
+        user as User,
+        mockResponse as Response,
+      );
+
+      expect(authService.generateAccessToken).toHaveBeenCalledWith({
+        id: user.id,
+      });
+      expect(authService.generateRefreshToken).toHaveBeenCalledWith({
+        id: user.id,
+      });
+      expect(mockResponse.cookie).toHaveBeenCalled();
+      expect(loginResponse).toHaveProperty('accessToken');
     });
   });
 });

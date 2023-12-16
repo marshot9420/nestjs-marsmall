@@ -48,7 +48,6 @@ export class AuthService {
 
   async validateLocalUser(email: string, password: string): Promise<User> {
     const user = await this.userRepository.findWithPassword(email);
-    console.log(user);
 
     throwExceptionOrNot(user, EXCEPTION.AUTH.BAD_AUTH_REQUEST);
 
@@ -77,9 +76,9 @@ export class AuthService {
     try {
       const refreshToken = this.jwtService.sign(payload, {
         secret: this.configService.get<AuthConfigType>(CONFIG.AUTH)
-          .accessTokenSecret,
+          .refreshTokenSecret,
         expiresIn: this.configService.get<AuthConfigType>(CONFIG.AUTH)
-          .accessTokenExpiresIn,
+          .refreshTokenExpiresIn,
       });
 
       const hashedRefreshToken = await bcrypt.hash(refreshToken, AUTH.SALT);

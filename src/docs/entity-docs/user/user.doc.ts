@@ -1,5 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
+
 import { Column } from 'typeorm';
 
 import { SwaggerDoc } from '@/common';
